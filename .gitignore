@@ -1,4 +1,5 @@
 *.o
 *.a
 *.out
-test_lib
+test_ft_printf.c
+compile_commands.json
