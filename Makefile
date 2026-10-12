@@ -12,7 +12,11 @@ ARFLAGS = rsc
 SRC = src/ft_printf.c src/ft_putchar.c src/ft_puthex.c src/ft_putnbr.c \
 			src/ft_putptr.c src/ft_putstr.c src/ft_put_unsigned.c
 
-OBJ = $(SRC:.c=.o)
+OBJ_DIR = build
+OBJ = $(SRC:src/%.c=$(OBJ_DIR)/%.o)
+
+TEST_NAME = test_printf
+TEST_SRC = test/test_ft_printf.c
 
 VALGRIND = valgrind
 VALGRINDFLAGS = --leak-check=full \
@@ -28,28 +32,30 @@ all: $(NAME)
 $(NAME): $(OBJ)
 	$(AR) $(ARFLAGS) $@ $^
 
-# rule to combine each .c -> .o
-%.o: %.c include/ft_printf.h
+$(OBJ_DIR)/%.o: src/%.c include/ft_printf.h | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# create testing executable
+$(OBJ_DIR):
+	mkdir -p $(OBJ_DIR)
+
+# build and run test executable
 test: $(NAME)
 	$(CC) $(CFLAGS) test/test_ft_printf.c -L. -lftprintf -o test_printf 
 	./test_printf
 
-valgrind:
-	$(VALGRIND) $(VALGRINDFLAGS) ./a.out
+valgrind: test
+	$(VALGRIND) $(VALGRINDFLAGS) ./$(TEST_NAME)
 
 # remove obj files
 clean:
-	rm -f $(OBJ)
+	rm -rf $(OBJ_DIR)
 
 # remove obj files and lib
 fclean: clean
-	rm -f $(NAME) test_printf
+	rm -f $(NAME) $(TEST_NAME)
 
 # full build
 re: fclean all
 
 # tell make these are not actual files
-.PHONY: all clean fclean re
+.PHONY: all test valgrind clean fclean re

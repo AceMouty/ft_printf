@@ -3,3 +3,4 @@
 *.out
 /test_printf
 compile_commands.json
+build/
